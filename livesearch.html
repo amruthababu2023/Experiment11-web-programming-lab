@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live Search using Fetch API</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f4f8;
+      margin: 0;
+      padding: 30px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    h2 {
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    li small {
+      color: gray;
+    }
+    #message {
+      color: gray;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Live User Search</h2>
+
+    <!-- Search box -->
+    <input type="text" id="searchBox" placeholder="Type a name...">
+
+    <p id="message"></p>
+
+    <!-- Results will appear here -->
+    <ul id="results"></ul>
+  </div>
+
+  <script>
+    // Step 1: Get HTML elements
+    var searchBox = document.getElementById("searchBox");
+    var resultsList = document.getElementById("results");
+    var message = document.getElementById("message");
+
+    // Step 2: This array will store all data fetched from the API
+    var allUsers = [];
+
+    // Step 3: Fetch data ONE time when the page loads
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then(function (response) {
+        return response.json();          // convert response to JSON
+      })
+      .then(function (data) {
+        allUsers = data;                 // save the data
+        showResults(allUsers);           // show all users at start
+      })
+      .catch(function (error) {
+        message.innerText = "Error loading data!";
+        console.log(error);
+      });
+
+    // Step 4: Function to display results on the page
+    function showResults(users) {
+      resultsList.innerHTML = "";        // clear old results
+
+      if (users.length === 0) {
+        message.innerText = "No results found";
+        return;
+      }
+
+      message.innerText = users.length + " result(s) found";
+
+      for (var i = 0; i < users.length; i++) {
+        var li = document.createElement("li");
+        li.innerHTML = "<b>" + users[i].name + "</b><br><small>" + users[i].email + "</small>";
+        resultsList.appendChild(li);
+      }
+    }
+
+    // Step 5: Run this every time the user types a letter
+    searchBox.addEventListener("input", function () {
+      var text = searchBox.value.toLowerCase();
+
+      var filtered = allUsers.filter(function (user) {
+        return user.name.toLowerCase().includes(text);
+      });
+
+      showResults(filtered);             // update list instantly (no page reload)
+    });
+  </script>
+</body>
+</html>
